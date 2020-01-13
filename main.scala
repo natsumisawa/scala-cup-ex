@@ -1,5 +1,13 @@
 import java.util.{Date, Locale}
 import java.text.DateFormat._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Random, Success}
 
 object HelloWorld {
   def main(args: Array[String]): Unit = {
@@ -71,7 +79,7 @@ object Tree {
 
   def derive(t: Tree, v: String): Tree = t match {
     case Sum(l, r) => Sum(derive(l, v), derive(r, v))
-    case Var(n) if v ==  n => Const(1)
+    case Var(n) if v == n => Const(1)
     case _ => Const(0)
   }
 
@@ -89,6 +97,7 @@ object Tree {
 }
 
 object ImplicitClass {
+
   implicit class DoubleInt(i: Int) {
     def double = i * 2
   }
