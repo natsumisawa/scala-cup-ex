@@ -101,3 +101,42 @@ object CompositeFutureSample {
     Await.ready(compositeFuture, 5000 millisecond)
   }
 }
+
+object FutureApply {
+  def main(args: Array[String]): Unit = {
+      // applyしただけだと実行されない、要ec、別スレッドでの実行
+      Future {
+          println("start1...")
+          println(s"[Thread name] in future: ${Thread.currentThread().getName}")
+          Thread.sleep(1000)
+          println("finish1...")
+          println(s"[Thread name] in future: ${Thread.currentThread().getName}")
+      }
+
+      // 上記単体だと実行されないが、以下でスレッドを立てるとどちらも実行される
+      Await.result({Future {
+          println("start2...")
+          println(s"[Thread name] in future: ${Thread.currentThread().getName}")
+          Thread.sleep(1000)
+          println("finish2...")
+          println(s"[Thread name] in future: ${Thread.currentThread().getName}")
+      }}, 100.seconds)
+  }
+}
+
+object FutureFoldLeft {
+  def main(args: Array[String]): Unit = {
+      (1 to 10).foldLeft(Future.successful(0)) { (accFuture, i) =>
+        println("hello.")
+        Thread.sleep(1000)
+        accFuture.flatMap { acc =>
+          println(acc)
+          println(s"[Thread name] in future: ${Thread.currentThread().getName}")
+          println(i)
+          // Future.successful(acc + i) successfulだとスレッドは計1つ
+          // Future(acc + i) applyだとスレッドは計2つ
+          Future(acc + i)
+        }
+      }
+  }
+}

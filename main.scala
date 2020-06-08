@@ -134,4 +134,3 @@ object PreferredPrompt {
     greet("joe") // Joeのためのpromptが暗黙的に渡される
   }
 }
-
