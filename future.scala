@@ -140,3 +140,19 @@ object FutureFoldLeft {
       }
   }
 }
+
+object FutureNest {
+  def main(args: Array[String]): Unit = {
+    println("start...")
+    val resultF = for {
+      one <- Future{println(s"本流スレッドです ${Thread.currentThread().getName}"); 1}
+      twoF <- Future(Future{Thread.sleep(5000); println(s"別スレッドです ${Thread.currentThread().getName}"); 2})
+      three <- Future{Thread.sleep(1000); 3}
+    } yield (one + three, twoF)
+    val result = Await.result(resultF, Duration.Inf)
+    println(s"計算結果 ${result._1}")
+    resultF.map(result => println(s"resultさせたスレッドはどうなっているのでしょう ${Thread.currentThread().getState} 別スレッドは未完了のようです->${result._2}"))
+    Thread.sleep(6000)
+    result._2.map(_ => println(s"6秒経ちました。別スレッドは今どうなっているのでしょう ${Thread.currentThread().getState}"))
+  }
+}
